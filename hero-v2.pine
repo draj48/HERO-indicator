@@ -1,0 +1,131 @@
+//@version=6
+indicator(
+     title="EMA + Supertrend",
+     shorttitle="HERO",
+     overlay=true
+)
+
+// ==================================================
+// 🔹 INPUTS — EMA (ORIGINAL STYLE)
+// ==================================================
+emaSource = input.source(close, "EMA Source")
+
+showEMA3   = input.bool(false, "Show EMA 3")
+showEMA9   = input.bool(true,  "Show EMA 9")
+showEMA15  = input.bool(true,  "Show EMA 15")
+showEMA20  = input.bool(false, "Show EMA 20")
+showEMA50  = input.bool(false, "Show EMA 50")
+showEMA200 = input.bool(false, "Show EMA 200")
+
+emaLen3   = input.int(3,   "EMA 3 Length")
+emaLen9   = input.int(9,   "EMA 9 Length")
+emaLen15  = input.int(15,  "EMA 15 Length")
+emaLen20  = input.int(20,  "EMA 20 Length")
+emaLen50  = input.int(50,  "EMA 50 Length")
+emaLen200 = input.int(200, "EMA 200 Length")
+
+// ==================================================
+// 🔹 INPUTS — SUPERTREND (ORIGINAL STYLE)
+// ==================================================
+stSource   = input.source(hl2, "Supertrend Source")
+stATRLen   = input.int(10, "ATR Period")
+stMult     = input.float(3.0, "ATR Multiplier")
+
+useAltATR  = input.bool(true,  "Change ATR Calculation Method?")
+showSTSig  = input.bool(true,  "Show Buy/Sell Signals?")
+showSTBg   = input.bool(true,  "Highlighter On/Off?")
+
+// ==================================================
+// 🔹 EMA CALC
+// ==================================================
+ema3   = ta.ema(emaSource, emaLen3)
+ema9   = ta.ema(emaSource, emaLen9)
+ema15  = ta.ema(emaSource, emaLen15)
+ema20  = ta.ema(emaSource, emaLen20)
+ema50  = ta.ema(emaSource, emaLen50)
+ema200 = ta.ema(emaSource, emaLen200)
+
+// ==================================================
+// 🔹 EMA PLOTS (VISIBILITY CONTROLLED)
+// ==================================================
+plot(ema3,   title="EMA 3",   color=color.orange,
+     display = showEMA3   ? display.all : display.none)
+
+plot(ema9,   title="EMA 9",   color=color.blue,
+     display = showEMA9   ? display.all : display.none)
+
+plot(ema15,  title="EMA 15",  color=color.red,
+     display = showEMA15  ? display.all : display.none)
+
+plot(ema20,  title="EMA 20",  color=color.yellow,
+     display = showEMA20  ? display.all : display.none)
+
+plot(ema50,  title="EMA 50",  color=color.purple,
+     display = showEMA50  ? display.all : display.none)
+
+plot(ema200, title="EMA 200", color=color.green, linewidth=2,
+     display = showEMA200 ? display.all : display.none)
+
+// ==================================================
+// 🔹 SUPERTREND LOGIC (ORIGINAL-LIKE)
+// ==================================================
+atr = useAltATR ? ta.atr(stATRLen) : ta.sma(ta.tr(true), stATRLen)
+
+upperBand = stSource - stMult * atr
+lowerBand = stSource + stMult * atr
+
+var float supertrend = na
+var int direction = 1
+
+if na(supertrend)
+    supertrend := upperBand
+    direction := 1
+else
+    if close > supertrend
+        direction := 1
+    else if close < supertrend
+        direction := -1
+
+    supertrend := direction == 1
+         ? math.max(upperBand, supertrend)
+         : math.min(lowerBand, supertrend)
+
+// ==================================================
+// 🔹 SUPERTREND PLOT
+// ==================================================
+stUp   = direction == 1 ? supertrend : na
+stDown = direction == -1 ? supertrend : na
+
+plot(stUp,   title="Supertrend Up",   color=color.lime, linewidth=2)
+plot(stDown, title="Supertrend Down", color=color.red,  linewidth=2)
+
+// Background highlight
+bgcolor(
+     showSTBg
+     ? direction == 1 ? color.new(color.green, 90) : color.new(color.red, 90)
+     : na
+)
+
+// ==================================================
+// 🔹 EMA 9 / 15 CROSS ARROWS (CORE SAFE)
+// ==================================================
+buySignal  = ta.crossover(ema9, ema15)
+sellSignal = ta.crossunder(ema9, ema15)
+
+plotshape(
+     showSTSig and buySignal,
+     title="BUY",
+     style=shape.triangleup,
+     location=location.belowbar,
+     color=color.lime,
+     size=size.small
+)
+
+plotshape(
+     showSTSig and sellSignal,
+     title="SELL",
+     style=shape.triangledown,
+     location=location.abovebar,
+     color=color.red,
+     size=size.small
+)
