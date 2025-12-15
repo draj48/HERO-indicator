@@ -1,0 +1,63 @@
+//@version=6
+indicator(
+     title="EMA + Supertrend",
+     shorttitle="HERO",
+     overlay=true
+)
+
+// =====================
+// INPUTS – EMA
+// =====================
+emaLen3   = input.int(3,   "EMA 3 Length")
+emaLen9   = input.int(9,   "EMA 9 Length")
+emaLen15  = input.int(15,  "EMA 15 Length")
+emaLen20  = input.int(20,  "EMA 20 Length")
+emaLen50  = input.int(50,  "EMA 50 Length")
+emaLen200 = input.int(200, "EMA 200 Length")
+
+// =====================
+// INPUTS – SUPERTREND
+// =====================
+stLen  = input.int(1,   "Supertrend Length")
+stMult = input.float(1, "Supertrend Factor")
+
+// =====================
+// EMA CALC
+// =====================
+ema3   = ta.ema(close, emaLen3)
+ema9   = ta.ema(close, emaLen9)
+ema15  = ta.ema(close, emaLen15)
+ema20  = ta.ema(close, emaLen20)
+ema50  = ta.ema(close, emaLen50)
+ema200 = ta.ema(close, emaLen200)
+
+// =====================
+// EMA PLOTS
+// =====================
+plot(ema3,   title="EMA 3",   color=color.orange)
+plot(ema9,   title="EMA 9",   color=color.blue)
+plot(ema15,  title="EMA 15",  color=color.red)
+plot(ema20,  title="EMA 20",  color=color.yellow)
+plot(ema50,  title="EMA 50",  color=color.purple)
+plot(ema200, title="EMA 200", color=color.green, linewidth=2)
+
+// =====================
+// SUPERTREND
+// =====================
+[st, dir] = ta.supertrend(stMult, stLen)
+
+plot(
+     st,
+     title="Supertrend",
+     color = dir == 1 ? color.lime : color.red,
+     linewidth=2
+)
+
+// =====================
+// ARROWS (EMA 9 / 15 CROSS ONLY)
+// =====================
+buySignal  = ta.crossover(ema9, ema15)
+sellSignal = ta.crossunder(ema9, ema15)
+
+plotshape(buySignal,  title="BUY",  style=shape.triangleup,   location=location.belowbar, color=color.lime, size=size.small)
+plotshape(sellSignal, title="SELL", style=shape.triangledown, location=location.abovebar, color=color.red,  size=size.small)
