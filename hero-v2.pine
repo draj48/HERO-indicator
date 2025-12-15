@@ -73,13 +73,14 @@ else
          : math.min(lowerBand, supertrend)
 
 // ==================================================
-// 🔹 SUPERTREND PLOT
+// 🔹 SUPERTREND PLOT (SAME LINE FIX)
 // ==================================================
-stUp   = direction == 1 ? supertrend : na
-stDown = direction == -1 ? supertrend : na
-
-plot(stUp,   title="Supertrend Up",   color=color.lime, linewidth=2)
-plot(stDown, title="Supertrend Down", color=color.red,  linewidth=2)
+plot(
+     supertrend,
+     title="Supertrend",
+     color = direction == 1 ? color.lime : color.red,
+     linewidth=2
+)
 
 // Background highlight
 bgcolor(
@@ -111,4 +112,3 @@ plotshape(
      color=color.red,
      size=size.small
 )
-
