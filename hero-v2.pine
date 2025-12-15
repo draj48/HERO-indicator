@@ -10,13 +10,6 @@ indicator(
 // ==================================================
 emaSource = input.source(close, "EMA Source")
 
-showEMA3   = input.bool(false, "Show EMA 3")
-showEMA9   = input.bool(true,  "Show EMA 9")
-showEMA15  = input.bool(true,  "Show EMA 15")
-showEMA20  = input.bool(false, "Show EMA 20")
-showEMA50  = input.bool(false, "Show EMA 50")
-showEMA200 = input.bool(false, "Show EMA 200")
-
 emaLen3   = input.int(3,   "EMA 3 Length")
 emaLen9   = input.int(9,   "EMA 9 Length")
 emaLen15  = input.int(15,  "EMA 15 Length")
@@ -46,25 +39,14 @@ ema50  = ta.ema(emaSource, emaLen50)
 ema200 = ta.ema(emaSource, emaLen200)
 
 // ==================================================
-// 🔹 EMA PLOTS (VISIBILITY CONTROLLED)
+// 🔹 EMA PLOTS
 // ==================================================
-plot(ema3,   title="EMA 3",   color=color.orange,
-     display = showEMA3   ? display.all : display.none)
-
-plot(ema9,   title="EMA 9",   color=color.blue,
-     display = showEMA9   ? display.all : display.none)
-
-plot(ema15,  title="EMA 15",  color=color.red,
-     display = showEMA15  ? display.all : display.none)
-
-plot(ema20,  title="EMA 20",  color=color.yellow,
-     display = showEMA20  ? display.all : display.none)
-
-plot(ema50,  title="EMA 50",  color=color.purple,
-     display = showEMA50  ? display.all : display.none)
-
-plot(ema200, title="EMA 200", color=color.green, linewidth=2,
-     display = showEMA200 ? display.all : display.none)
+plot(ema3,   title="EMA 3",   color=color.orange)
+plot(ema9,   title="EMA 9",   color=color.blue)
+plot(ema15,  title="EMA 15",  color=color.red)
+plot(ema20,  title="EMA 20",  color=color.yellow)
+plot(ema50,  title="EMA 50",  color=color.purple)
+plot(ema200, title="EMA 200", color=color.green, linewidth=2)
 
 // ==================================================
 // 🔹 SUPERTREND LOGIC (ORIGINAL-LIKE)
